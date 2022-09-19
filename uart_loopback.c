@@ -43,6 +43,8 @@
 //#include <st_log.h>
 
 #define COUNT 5
+#define SUCCESS 0
+#define FAILURE -1
 
 extern int errno ;
 
