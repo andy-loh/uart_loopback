@@ -149,7 +149,7 @@ int main(int argc, char const *argv[])
 	// activate the settings
 	if (tcsetattr(uart_device.devicename, TCSANOW, &l_sUARTConfig) != 0) {
 		printf("fail to activate the setting!\n");
-		goto close_io;
+		goto restore_default_config;
 	}
 
 	// flush before read byte
