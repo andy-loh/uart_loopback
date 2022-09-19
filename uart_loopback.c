@@ -205,13 +205,13 @@ int main(int argc, char const *argv[])
 			time_elapsed_per_bit[i] = time_elapsed[i];
 		}
 
-		printf("The reading takes %f ms\n", time_elapsed_per_bit[i]*1000);
+		//printf("The reading takes %f ms\n", time_elapsed_per_bit[i]*1000);
 	}
 
 	time_difference = time_elapsed[COUNT-1] -  time_expected ;
-	printf("The difference of the time is %f ms\n", time_difference*1000);
-	printf("The expected time is %f ms\n",time_expected*1000);
-	printf("The reading time is %f ms\n",time_elapsed[COUNT-1] *1000);
+	//printf("The difference of the time is %f ms\n", time_difference*1000);
+	//printf("The expected time is %f ms\n",time_expected*1000);
+	//printf("The reading time is %f ms\n",time_elapsed[COUNT-1] *1000);
 
 	if ( read_count_in_byte < 0 ) {
 			fprintf(stderr, "Value of errno: %d\n", errno);
