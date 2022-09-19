@@ -183,7 +183,7 @@ int main(int argc, char const *argv[])
 			printf("reading failed!\n");
 			fprintf(stderr, "Value of errno: %d\n", errno);
 			fprintf(stderr, "Error opening file: %s\n", strerror(errno));
-			return FAILURE;
+			break;
 		}
 		else {
 			gettimeofday(&tval_after[read_count_in_byte], NULL);
@@ -218,7 +218,7 @@ int main(int argc, char const *argv[])
 	}
 	else if ( read_count_in_byte != COUNT ) {
 			printf("Reading failed!\n");
-			return FAILURE;
+			err = FAILURE;
 	}
 	printf("------Finish Reading------\n");
 	printf("Expected Bytes received = %d, Actual Bytes received: %d\n", COUNT, read_count_in_byte);
@@ -245,7 +245,6 @@ int main(int argc, char const *argv[])
 		printf("Data match FAIL!\n");
 	}
 	printf("--------End of result----------\n");
-
 	pthread_join(write_thread, NULL);
 	pthread_barrier_destroy(&barrier_work_main);
 
