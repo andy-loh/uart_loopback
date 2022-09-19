@@ -44,7 +44,7 @@
 //#include <st_defines.h>
 //#include <st_log.h>
 
-#define COUNT 5
+#define COUNT 10
 #define SUCCESS 0
 #define FAILURE -1
 
@@ -117,8 +117,8 @@ int main(int argc, char const *argv[])
 	// get the device from user input
 	char sDevice[128];
 	strcpy(sDevice, argv[1]);
-	uart_device.devicename = open(sDevice,  O_RDWR | O_NOCTTY | O_NONBLOCK);
-	printf("Executing UART LOOPBACK test for %s\n\n", sDevice);
+	uart_device.devicename = open(sDevice,  O_RDWR | O_NOCTTY );
+	printf("Executing UART LOOPBACK test 1 for %s\n\n", sDevice);
         if (uart_device.devicename < 0) {
                 printf("io failed to close device");
 		goto end;
@@ -159,7 +159,7 @@ int main(int argc, char const *argv[])
 
 	pthread_t write_thread;
 	pthread_barrier_init(&barrier_work_main,NULL,2);
-	unsigned char Rx_Data[COUNT] = {0, 0, 0, 0, 0};
+	unsigned char Rx_Data[COUNT] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	int read_count_in_byte = 0;
 	double time_elapsed[COUNT];
 	double time_elapsed_per_bit[COUNT];
@@ -176,6 +176,7 @@ int main(int argc, char const *argv[])
 	do {
 		count = read(uart_device.devicename, &Rx_Data[read_count_in_byte], 1);
 		if (count == 0){
+			printf("Count = 0\n");
 			continue;
 		}
 		else if (count < 0) {
