@@ -117,7 +117,7 @@ int main(int argc, char const *argv[])
 	// get the device from user input
 	char sDevice[128];
 	strcpy(sDevice, argv[1]);
-	uart_device.devicename = open(sDevice,  O_RDWR | O_NOCTTY | O_NDELAY);
+	uart_device.devicename = open(sDevice,  O_RDWR | O_NOCTTY | O_NONBLOCK);
 	printf("Executing UART LOOPBACK test for %s\n\n", sDevice);
         if (uart_device.devicename < 0) {
                 printf("io failed to close device");
