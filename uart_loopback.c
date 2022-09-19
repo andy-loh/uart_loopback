@@ -39,8 +39,8 @@
 // File control definitions
 #include <fcntl.h>
 #include <unistd.h>
-#include <st_defines.h>
-#include <st_log.h>
+//#include <st_defines.h>
+//#include <st_log.h>
 
 #define COUNT 5
 
