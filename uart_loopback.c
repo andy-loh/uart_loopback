@@ -143,8 +143,8 @@ int main(int argc, char const *argv[])
 
 	// This is a completely non-blocking read.
 	// The call is satisfied immediately directly from the driver's input queue.
-	l_sUARTConfig.c_cc[VTIME] = 0;
-	l_sUARTConfig.c_cc[VMIN] = 0;
+	l_sUARTConfig.c_cc[VTIME] = 20;
+	l_sUARTConfig.c_cc[VMIN] = 2;
 
 	// activate the settings
 	if (tcsetattr(uart_device.devicename, TCSANOW, &l_sUARTConfig) != 0) {
