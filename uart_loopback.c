@@ -144,6 +144,7 @@ int main(int argc, char const *argv[])
 		goto close_io;
 	}
 
+	/*
 	// setting the UART baud rate from arguments
 	printf("Changing the Baud rate.............\n");
 	printf("The baud rate is successfully set at : %u\n",uart_device.baudrate);
@@ -162,7 +163,7 @@ int main(int argc, char const *argv[])
 	// flush before reading byte
 	if (tcflush(uart_device.devicename, TCIFLUSH) != 0) {
 		goto restore_default_config;
-	}
+	}*/
 
 	// create a thread that writes bytes to tx pin
 	pthread_t write_thread;
