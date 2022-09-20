@@ -164,6 +164,7 @@ int main(int argc, char const *argv[])
 		goto restore_default_config;
 	}
 
+	pthread_t write_thread;
 	// init a thread barrier with 2 counts
 	pthread_barrier_init(&barrier_work_main,NULL,2);
 
