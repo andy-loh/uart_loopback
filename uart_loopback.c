@@ -118,22 +118,23 @@ int main(int argc, char const *argv[])
 
 	// a string that stores the device driver name
 	char sDevice[128];
-	strcpy(sDevice,argv[1]);
-	uart_device.devicename = open(sDevice, O_RDWR | O_NOCTTY | O_NDELAY );
-
-	// make sure the uart device is correctly opened
-	if (uart_device.devicename < 0) {
-                printf("io failed to close device");
-		goto end;
-	}
-
-	uart_device.baudrate = atoi(argv[2]);
 
 	if (argc != 3) {
 		printf("Please input two arguments!\n");
 		printf("Example: ./uart_loopback /dev/ttyS3 9600\n");
 		goto end;
 	}
+
+	strcpy(sDevice,argv[1]);
+	uart_device.baudrate = atoi(argv[2]);
+	uart_device.devicename = open(sDevice, O_RDWR | O_NOCTTY | O_NDELAY );
+
+	// make sure the uart device is correctly opened
+	if (uart_device.devicename < 0) {
+                printf("io failed to open device");
+		goto end;
+	}
+
 
 	printf("Executing UART LOOPBACK TEST for device %s\n", sDevice);
 
