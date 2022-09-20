@@ -135,11 +135,22 @@ int main(int argc, char const *argv[])
 		goto end;
 	}
 
-
 	printf("Executing UART LOOPBACK TEST for device %s\n", sDevice);
 
+	struct termios l_uart_config, l_ori_uart_config;
+	if ( ( tcgetattr(uart_device.devicename, &l_uart_config)) != 0
+	     || ( tcgetattr(uart_device.devicename, &l_ori_uart_config ) ) != 0 ) {
+		printf("Error getting attributes!\n");
+		goto close_io;
+	}
 
 
+
+close_io:
+	if (close(uart_device.devicename) < 0) {
+		printf("io fails to close device");
+		err = FAILURE;
+	}
 
 end:
 	return err;
