@@ -147,6 +147,7 @@ int main(int argc, char const *argv[])
 
 
 close_io:
+	printf("Closing IO\n");
 	if (close(uart_device.devicename) < 0) {
 		printf("io fails to close device");
 		err = FAILURE;
