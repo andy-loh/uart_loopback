@@ -132,11 +132,12 @@ int main(int argc, char const *argv[])
 	// Open the device in nonblocking mode
 	if (fcntl(uart_device.devicename, F_SETFL, FNDELAY) != 0)
 	{
+		printf("opening fd in non-blocking mode FAILED!\n");
 		goto close_io;
 	}
 	// make sure the uart device is correctly opened
 	if (uart_device.devicename < 0) {
-                printf("io failed to open device");
+                printf("io failed to open device\n");
 		goto end;
 	}
 
@@ -146,6 +147,7 @@ int main(int argc, char const *argv[])
 
 	// Clear all the options
 	bzero(&l_uart_config, sizeof(l_uart_config));
+
 	if ( ( tcgetattr(uart_device.devicename, &l_uart_config)) != 0
 	     || ( tcgetattr(uart_device.devicename, &l_ori_uart_config ) ) != 0 ) {
 		printf("Error getting attributes!\n");
@@ -156,12 +158,12 @@ int main(int argc, char const *argv[])
 	// setting the UART baud rate from arguments
 	printf("Changing the Baud rate.............\n");
 	printf("The baud rate is successfully set at : %u\n",uart_device.baudrate);
+
 	// set the baud rate
-	if (cfsetspeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate)) != 0) {
+	if ( cfsetspeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate)) != 0) {
 		printf("Fail to set the baud rate!\n");
 		goto close_io;
 	}
-
 
 	l_uart_config.c_iflag |= (IGNPAR | IGNBRK);
 	l_uart_config.c_cflag |= (CLOCAL | CREAD | CS8);
