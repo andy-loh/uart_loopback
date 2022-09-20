@@ -99,7 +99,7 @@ speed_t convertIntToSpeedType(unsigned int baud_rate)
 		case 115200 	: return B115200;
 		case 230400 	: return B230400;
 		case 460800 	: return B460800;
-		case 921600		: return B921600;
+		case 921600	: return B921600;
 		case 1000000 	: return B1000000;
 		case 1152000 	: return B1152000;
 		case 2000000 	: return B2000000;
@@ -113,159 +113,32 @@ speed_t convertIntToSpeedType(unsigned int baud_rate)
 
 int main(int argc, char const *argv[])
 {
+	// start with an error return value
 	int err = FAILURE;
-	// get the device from user input
+
+	// a string that stores the device driver name
 	char sDevice[128];
-	strcpy(sDevice, argv[1]);
-	uart_device.devicename = open(sDevice,  O_RDWR | O_NOCTTY | O_NDELAY );
-	printf("Executing UART LOOPBACK test 1 for %s\n\n", sDevice);
-        if (uart_device.devicename < 0) {
+	strcpy(sDevice,argv[1]);
+	uart_device.devicename = open(sDevice, O_RDWR | O_NOCTTY | O_NDELAY );
+
+	// make sure the uart device is correctly opened
+	if (uart_device.devicename < 0) {
                 printf("io failed to close device");
 		goto end;
 	}
 
-	struct termios l_sUARTConfig, l_sDefaultUARTConfig;
-	if (tcgetattr(uart_device.devicename, &l_sUARTConfig) != 0
-	 || tcgetattr(uart_device.devicename, &l_sDefaultUARTConfig) != 0) {
-		printf("Error getting attributes!\n");
-		goto close_io;
-	}
-
-	// setting the UART baud rate from arguments
-	printf("Changing the Baud rate.............\n");
 	uart_device.baudrate = atoi(argv[2]);
-	printf("The baud rate is successfully set at : %u\n",uart_device.baudrate);
-	// set the baud rate
-	if (cfsetspeed(&l_sUARTConfig, convertIntToSpeedType(uart_device.baudrate)) != 0) {
-        	printf("Fail to set the baud rate!\n");
-		goto close_io;
+
+	if (argc != 3) {
+		printf("Please input two arguments!\n");
+		printf("Example: ./uart_loopback /dev/ttyS3 9600\n");
+		goto end;
 	}
 
-	// This is a completely non-blocking read.
-	// The call is satisfied immediately directly from the driver's input queue.
-	l_sUARTConfig.c_cc[VTIME] = 20;
-	l_sUARTConfig.c_cc[VMIN] = 2;
-
-	// activate the settings
-	if (tcsetattr(uart_device.devicename, TCSANOW, &l_sUARTConfig) != 0) {
-		printf("fail to activate the setting!\n");
-		goto restore_default_config;
-	}
-
-	// flush before read byte
-	if (tcflush(uart_device.devicename, TCIFLUSH) != 0) {
-		goto restore_default_config;
-	}
-
-	pthread_t write_thread;
-	pthread_barrier_init(&barrier_work_main,NULL,2);
-	unsigned char Rx_Data[COUNT] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-	int read_count_in_byte = 0;
-	double time_elapsed[COUNT];
-	double time_elapsed_per_bit[COUNT];
-	double time_expected =(double) (8*COUNT) / uart_device.baudrate ;
-	double time_difference;
-
-	// create a thread to write bytes
-	pthread_create(&write_thread,NULL,&write_bytes,(void*)&uart_device);
-
-	// synchronize main thread and worker thread
-	pthread_barrier_wait(&barrier_work_main);
-	int count = 0 ;
-	printf("-----------Reading-----------\n");
-	do {
-		count = read(uart_device.devicename, &Rx_Data[read_count_in_byte], 1);
-		if (count == 0){
-			printf("Count = 0\n");
-			continue;
-		}
-		else if (count < 0) {
-			//goto clos
-			printf("reading failed!\n");
-			fprintf(stderr, "Value of errno: %d\n", errno);
-			fprintf(stderr, "Error opening file: %s\n", strerror(errno));
-			break;
-		}
-		else {
-			gettimeofday(&tval_after[read_count_in_byte], NULL);
-			read_count_in_byte += count;
-		}
-
-	} while (read_count_in_byte != COUNT );
-
-	for (int i =0 ; i < COUNT; i++ )
-	{
-		timersub(&tval_after[i], &tval_before, &tval_result[i]);
-		time_elapsed[i] = (double)tval_result[i].tv_sec + ((double)tval_result[i].tv_usec/1000000.0f);
-
-		if (i > 0) {
-			time_elapsed_per_bit[i] = time_elapsed[i] - time_elapsed[i-1];
-		}
-		else {
-			time_elapsed_per_bit[i] = time_elapsed[i];
-		}
-
-		//printf("The reading takes %f ms\n", time_elapsed_per_bit[i]*1000);
-	}
-
-	time_difference = time_elapsed[COUNT-1] -  time_expected ;
-	//printf("The difference of the time is %f ms\n", time_difference*1000);
-	//printf("The expected time is %f ms\n",time_expected*1000);
-	//printf("The reading time is %f ms\n",time_elapsed[COUNT-1] *1000);
-
-	if ( read_count_in_byte < 0 ) {
-			fprintf(stderr, "Value of errno: %d\n", errno);
-			fprintf(stderr, "Error opening file: %s\n", strerror(errno));
-	}
-	else if ( read_count_in_byte != COUNT ) {
-			printf("Reading failed!\n");
-			err = FAILURE;
-	}
-	printf("------Finish Reading------\n");
-	printf("Expected Bytes received = %d, Actual Bytes received: %d\n", COUNT, read_count_in_byte);
-	if (read_count_in_byte == COUNT) {
-		err = SUCCESS;
-	}
-
-	for (int i = 0; i < read_count_in_byte && read_count_in_byte <= COUNT; i++) {
-		if (Tx_Data[i] != Rx_Data[i]) {
-			printf("Tx = %c, Rx = %c (Mismatch)\n", Tx_Data[i], Rx_Data[i]);
-			err = FAILURE;
-		}
-		else {
-			printf("Tx = %c, Rx = %c\n", Tx_Data[i], Rx_Data[i]);
-			err = SUCCESS;
-		}
-	}
-
-	printf("------------Result-------------\n");
-	if ( err == 0) {
-		printf("Data match SUCCESS!\n");
-	}
-	else {
-		printf("Data match FAIL!\n");
-	}
-	printf("--------End of result----------\n");
-	pthread_join(write_thread, NULL);
-	pthread_barrier_destroy(&barrier_work_main);
-
-	// flush after read byte
-	if (tcflush(uart_device.devicename, TCIFLUSH) != 0) {
-		err = FAILURE;
-	}
+	printf("Executing UART LOOPBACK TEST for device %s\n", sDevice);
 
 
-restore_default_config:
-	if (tcsetattr(uart_device.devicename, TCSANOW, &l_sDefaultUARTConfig) != 0) {
-        printf("fail to restore default setting!\n");
-		err = FAILURE;
-	}
 
-close_io:
-	if (close(uart_device.devicename) < 0) {
-		printf("io failed to close device");
-		err = FAILURE;
-	}
 
 end:
 	return err;
