@@ -144,7 +144,7 @@ int main(int argc, char const *argv[])
 		goto close_io;
 	}
 
-	/*
+
 	// setting the UART baud rate from arguments
 	printf("Changing the Baud rate.............\n");
 	printf("The baud rate is successfully set at : %u\n",uart_device.baudrate);
@@ -154,16 +154,26 @@ int main(int argc, char const *argv[])
 		goto close_io;
 	}
 
+	/*
+	l_uart_config.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
+                    | INLCR | IGNCR | ICRNL | IXON);
+	l_uart_config.c_oflag &= ~OPOST;
+	l_uart_config.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+	l_uart_config.c_cflag &= ~(CSIZE | PARENB);
+	l_uart_config.c_cflag |= B9600 | CS8 | CREAD | CLOCAL; */
+	l_uart_config.c_cc[VTIME] = 1;
+	l_uart_config.c_cc[VMIN] = 0;
+	// flush before reading byte
+	if (tcflush(uart_device.devicename, TCIFLUSH) != 0) {
+		goto restore_default_config;
+	}
+
 	// activate the settings
 	if (tcsetattr(uart_device.devicename, TCSANOW, &l_uart_config) != 0) {
 		printf("fail to activate the setting!\n");
 		goto restore_default_config;
 	}
 
-	// flush before reading byte
-	if (tcflush(uart_device.devicename, TCIFLUSH) != 0) {
-		goto restore_default_config;
-	}*/
 
 	// create a thread that writes bytes to tx pin
 	pthread_t write_thread;
