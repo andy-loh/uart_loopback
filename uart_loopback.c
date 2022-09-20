@@ -208,7 +208,7 @@ int main(int argc, char const *argv[])
 
 restore_default_config:
 	printf("Restoring config to default\n");
-	if (tcsetattr(uart_device.devicename, TCSANOW, &l_sDefaultUARTConfig) != 0) {
+	if (tcsetattr(uart_device.devicename, TCSANOW, &l_ori_uart_config) != 0) {
 		printf("fail to restore default setting!\n");
 		err = FAILURE;
 	}
