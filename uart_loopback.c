@@ -154,15 +154,16 @@ int main(int argc, char const *argv[])
 		goto close_io;
 	}
 
-	/*
+
 	l_uart_config.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
                     | INLCR | IGNCR | ICRNL | IXON);
 	l_uart_config.c_oflag &= ~OPOST;
 	l_uart_config.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
 	l_uart_config.c_cflag &= ~(CSIZE | PARENB);
-	l_uart_config.c_cflag |= B9600 | CS8 | CREAD | CLOCAL; */
+	l_uart_config.c_cflag |= B9600 | CS8 | CREAD | CLOCAL;
 	l_uart_config.c_cc[VTIME] = 1;
 	l_uart_config.c_cc[VMIN] = 0;
+
 	// flush before reading byte
 	if (tcflush(uart_device.devicename, TCIOFLUSH) != 0) {
 		goto restore_default_config;
@@ -196,7 +197,7 @@ int main(int argc, char const *argv[])
 	int count = 0 ;
 	printf("-----------Reading-----------\n");
 	do {
-		count = read(uart_device.devicename, Rx_Data, COUNT);
+		count = read(uart_device.devicename, &Rx_Data[], COUNT);
 		if (count == 0){
 			printf("Count = 0\n");
 			continue;
