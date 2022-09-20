@@ -144,7 +144,74 @@ int main(int argc, char const *argv[])
 		goto close_io;
 	}
 
+	// setting the UART baud rate from arguments
+	printf("Changing the Baud rate.............\n");
+	printf("The baud rate is successfully set at : %u\n",uart_device.baudrate);
+	// set the baud rate
+	if (cfsetspeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate)) != 0) {
+		printf("Fail to set the baud rate!\n");
+		goto close_io;
+	}
 
+	// activate the settings
+	if (tcsetattr(uart_device.devicename, TCSANOW, &l_uart_config) != 0) {
+		printf("fail to activate the setting!\n");
+		goto restore_default_config;
+	}
+
+	// flush before reading byte
+	if (tcflush(uart_device.devicename, TCIFLUSH) != 0) {
+		goto restore_default_config;
+	}
+
+	// init a thread barrier with 2 counts
+	pthread_barrier_init(&barrier_work_main,NULL,2);
+
+	// the rx data with the same size as tx data
+	unsigned char Rx_Data[COUNT] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+	// the variable that stores the number of bytes read
+	int read_count_in_byte = 0;
+
+	// create a thread to write bytes
+	pthread_create(&write_thread,NULL,&write_bytes,(void*)&uart_device);
+
+	// synchronize main thread and worker thread
+	// first barrier count here
+	pthread_barrier_wait(&barrier_work_main);
+
+	int count = 0 ;
+	printf("-----------Reading-----------\n");
+	do {
+		count = read(uart_device.devicename, &Rx_Data[read_count_in_byte], 1);
+		if (count == 0){
+			printf("Count = 0\n");
+			continue;
+		}
+		else if (count < 0) {
+			//goto clos
+			printf("reading failed!\n");
+			fprintf(stderr, "Value of errno: %d\n", errno);
+			fprintf(stderr, "Error opening file: %s\n", strerror(errno));
+			err = FAILURE;
+			break;
+		}
+		else {
+			gettimeofday(&tval_after[read_count_in_byte], NULL);
+			read_count_in_byte += count;
+		}
+
+	} while (read_count_in_byte != COUNT );
+
+
+
+
+restore_default_config:
+	printf("Restoring config to default\n");
+	if (tcsetattr(uart_device.devicename, TCSANOW, &l_sDefaultUARTConfig) != 0) {
+		printf("fail to restore default setting!\n");
+		err = FAILURE;
+	}
 
 close_io:
 	printf("Closing IO\n");
