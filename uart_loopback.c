@@ -164,7 +164,7 @@ int main(int argc, char const *argv[])
 	l_uart_config.c_cc[VTIME] = 1;
 	l_uart_config.c_cc[VMIN] = 0;
 	// flush before reading byte
-	if (tcflush(uart_device.devicename, TCIFLUSH) != 0) {
+	if (tcflush(uart_device.devicename, TCIOFLUSH) != 0) {
 		goto restore_default_config;
 	}
 
@@ -196,7 +196,7 @@ int main(int argc, char const *argv[])
 	int count = 0 ;
 	printf("-----------Reading-----------\n");
 	do {
-		count = read(uart_device.devicename, &Rx_Data[read_count_in_byte], 1);
+		count = read(uart_device.devicename, Rx_Data, COUNT);
 		if (count == 0){
 			printf("Count = 0\n");
 			continue;
