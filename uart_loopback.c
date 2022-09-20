@@ -138,6 +138,9 @@ int main(int argc, char const *argv[])
 	printf("Executing UART LOOPBACK TEST for device %s\n", sDevice);
 
 	struct termios l_uart_config, l_ori_uart_config;
+
+	// Clear all the options
+	bzero(&l_uart_config, sizeof(l_uart_config));
 	if ( ( tcgetattr(uart_device.devicename, &l_uart_config)) != 0
 	     || ( tcgetattr(uart_device.devicename, &l_ori_uart_config ) ) != 0 ) {
 		printf("Error getting attributes!\n");
@@ -155,13 +158,9 @@ int main(int argc, char const *argv[])
 	}
 
 
-	l_uart_config.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
-                    | INLCR | IGNCR | ICRNL | IXON);
-	l_uart_config.c_oflag &= ~OPOST;
-	l_uart_config.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
-	l_uart_config.c_cflag &= ~(CSIZE | PARENB);
-	l_uart_config.c_cflag |= B9600 | CS8 | CREAD | CLOCAL;
-	l_uart_config.c_cc[VTIME] = 1;
+	l_uart_config.c_iflag |= (IGNPAR | IGNBRK);
+	l_uart_config.c_cflag |= (CLOCAL | CREAD | CS8);
+	l_uart_config.c_cc[VTIME] = 0;
 	l_uart_config.c_cc[VMIN] = 0;
 
 	// flush before reading byte
