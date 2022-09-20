@@ -197,7 +197,7 @@ int main(int argc, char const *argv[])
 	int count = 0 ;
 	printf("-----------Reading-----------\n");
 	do {
-		count = read(uart_device.devicename, &Rx_Data[], COUNT);
+		count = read(uart_device.devicename, &Rx_Data[read_count_in_byte], COUNT);
 		if (count == 0){
 			printf("Count = 0\n");
 			continue;
