@@ -129,6 +129,11 @@ int main(int argc, char const *argv[])
 	uart_device.baudrate = atoi(argv[2]);
 	uart_device.devicename = open(sDevice, O_RDWR | O_NOCTTY | O_NDELAY );
 
+	// Open the device in nonblocking mode
+	if (fcntl(uart_device.devicename, F_SETFL, FNDELAY) != 0)
+	{
+		goto close_io;
+	}
 	// make sure the uart device is correctly opened
 	if (uart_device.devicename < 0) {
                 printf("io failed to open device");
