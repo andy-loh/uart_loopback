@@ -75,6 +75,7 @@ void* write_bytes(void* device)
 	}
 	gettimeofday(&tval_before, NULL);
 	pthread_barrier_wait(&barrier_work_main);
+	sleep(1);
 }
 
 speed_t convertIntToSpeedType(unsigned int baud_rate)
