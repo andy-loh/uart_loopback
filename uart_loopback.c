@@ -63,7 +63,7 @@ struct Device {
 	unsigned int baudrate;
 }uart_device;
 
-void* write_bytes(void* device)
+void *write_bytes(void* device)
 {
 	struct Device *device_ptr = ( struct Device*) device;
 	int fd = device_ptr->devicename;
@@ -75,7 +75,6 @@ void* write_bytes(void* device)
 	}
 	gettimeofday(&tval_before, NULL);
 	pthread_barrier_wait(&barrier_work_main);
-	sleep(1);
 }
 
 speed_t convertIntToSpeedType(unsigned int baud_rate)
@@ -130,12 +129,6 @@ int main(int argc, char const *argv[])
 	uart_device.baudrate = atoi(argv[2]);
 	uart_device.devicename = open(sDevice, O_RDWR | O_NOCTTY | O_NDELAY );
 
-	// Open the device in nonblocking mode
-	if (fcntl(uart_device.devicename, F_SETFL, FNDELAY) != 0)
-	{
-		printf("opening fd in non-blocking mode FAILED!\n");
-		goto close_io;
-	}
 	// make sure the uart device is correctly opened
 	if (uart_device.devicename < 0) {
                 printf("io failed to open device\n");
@@ -166,8 +159,6 @@ int main(int argc, char const *argv[])
 		goto close_io;
 	}
 
-	l_uart_config.c_iflag |= (IGNPAR | IGNBRK);
-	l_uart_config.c_cflag |= (CLOCAL | CREAD | CS8);
 	l_uart_config.c_cc[VTIME] = 0;
 	l_uart_config.c_cc[VMIN] = 0;
 
