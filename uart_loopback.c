@@ -188,7 +188,7 @@ int main(int argc, char const *argv[])
 	pthread_barrier_init(&barrier_work_main,NULL,2);
 
 	// the rx data with the same size as tx data
-	unsigned char Rx_Data[COUNT] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	unsigned char Rx_Data[COUNT];
 
 	// the variable that stores the number of bytes read
 	int read_count_in_byte = 0;
@@ -202,16 +202,8 @@ int main(int argc, char const *argv[])
 
 	int count = 0 ;
 	printf("-----------Reading-----------\n");
-	count = read(uart_device.devicename, Rx_Data, COUNT);
-	if (count < 0) {
-		//goto clos
-		printf("reading failed!\n");
-		fprintf(stderr, "Value of errno: %d\n", errno);
-		fprintf(stderr, "Error opening file: %s\n", strerror(errno));
-		err = FAILURE;
-		goto restore_default_config;
-	}
-	/*do {
+
+	do {
 		count = read(uart_device.devicename, &Rx_Data[read_count_in_byte], COUNT);
 		if (count == 0){
 			printf("Count = 0\n");
@@ -230,7 +222,7 @@ int main(int argc, char const *argv[])
 			read_count_in_byte += count;
 		}
 
-	} while (read_count_in_byte != COUNT ); */
+	} while (read_count_in_byte != COUNT );
 
 	printf("------------Result-------------\n");
 	if ( err == 0) {
