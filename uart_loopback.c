@@ -74,7 +74,7 @@ void *write_bytes(void* device)
 		printf("error in write\n");
 	}
 	gettimeofday(&tval_before, NULL);
-	pthread_barrier_wait(&barrier_work_main);
+	//pthread_barrier_wait(&barrier_work_main);
 }
 
 speed_t convertIntToSpeedType(unsigned int baud_rate)
@@ -180,7 +180,7 @@ int main(int argc, char const *argv[])
 	// create a thread that writes bytes to tx pin
 	pthread_t write_thread;
 	// init a thread barrier with 2 counts
-	pthread_barrier_init(&barrier_work_main,NULL,2);
+	//pthread_barrier_init(&barrier_work_main,NULL,2);
 
 	// the rx data with the same size as tx data
 	unsigned char Rx_Data[COUNT];
@@ -193,7 +193,7 @@ int main(int argc, char const *argv[])
 
 	// synchronize main thread and worker thread
 	// first barrier count here
-	pthread_barrier_wait(&barrier_work_main);
+	//pthread_barrier_wait(&barrier_work_main);
 
 	int count = 0 ;
 	printf("-----------Reading-----------\n");
@@ -228,7 +228,7 @@ int main(int argc, char const *argv[])
 	}
 	printf("--------End of result----------\n");
 	pthread_join(write_thread, NULL);
-	pthread_barrier_destroy(&barrier_work_main);
+	//pthread_barrier_destroy(&barrier_work_main);
 
 	// flush after read byte
 	if (tcflush(uart_device.devicename, TCIFLUSH) != 0) {
