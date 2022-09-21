@@ -70,7 +70,7 @@ void *write_bytes(void* device)
 	if (write(fd, Tx_Data, COUNT) != COUNT) {
 		printf("error in write\n");
 	}
-	pthread_barrier_wait(&barrier_work_main);
+	// pthread_barrier_wait(&barrier_work_main);
 }
 
 speed_t convertIntToSpeedType(unsigned int baud_rate)
