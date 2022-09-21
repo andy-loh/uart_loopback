@@ -211,6 +211,7 @@ int main(int argc, char const *argv[])
 			read_count_in_byte += count;
 			printf("Count : %d\n", count);
 		}
+		printf("Looping...\n");
 
 	} while (read_count_in_byte != COUNT );
 
