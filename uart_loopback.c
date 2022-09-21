@@ -164,7 +164,7 @@ int main(int argc, char const *argv[])
 	l_uart_config.c_oflag &= ~OPOST;
 	l_uart_config.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
 	l_uart_config.c_cflag &= ~(CSIZE | PARENB);
-	l_uart_config.c_cflag |= convertIntToSpeedType(uart_device.baudrate) | CS8 | CREAD | CLOCAL;
+	l_uart_config.c_cflag = convertIntToSpeedType(uart_device.baudrate) | CS8 | CREAD | CLOCAL;
 	l_uart_config.c_cc[VTIME] = 1;
 	l_uart_config.c_cc[VMIN] = 0;
 
