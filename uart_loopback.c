@@ -171,17 +171,17 @@ int main(int argc, char const *argv[])
 	l_uart_config.c_cc[VTIME] = 0;
 	l_uart_config.c_cc[VMIN] = 0;
 
-	// flush before reading byte
-	if (tcflush(uart_device.devicename, TCIOFLUSH) != 0) {
-		goto restore_default_config;
-	}
-
 	// activate the settings
 	if (tcsetattr(uart_device.devicename, TCSANOW, &l_uart_config) != 0) {
 		printf("fail to activate the setting!\n");
 		goto restore_default_config;
 	}
 
+
+	// flush before reading byte
+	if (tcflush(uart_device.devicename, TCIOFLUSH) != 0) {
+		goto restore_default_config;
+	}
 
 	// create a thread that writes bytes to tx pin
 	pthread_t write_thread;
@@ -205,7 +205,7 @@ int main(int argc, char const *argv[])
 	printf("-----------Reading-----------\n");
 
 	do {
-		count = read(uart_device.devicename, &Rx_Data[read_count_in_byte], COUNT);
+		count = read(uart_device.devicename, &Rx_Data[read_count_in_byte], 1);
 		if (count == 0){
 			printf("Count = 0\n");
 			continue;
