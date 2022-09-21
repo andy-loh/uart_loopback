@@ -72,7 +72,7 @@ void *write_bytes(void* device)
 		printf("error in write\n");
 	}
 	gettimeofday(&tval_before, NULL);
-	// pthread_barrier_wait(&barrier_work_main);
+	pthread_barrier_wait(&barrier_work_main);
 }
 
 speed_t convertIntToSpeedType(unsigned int baud_rate)
@@ -257,7 +257,7 @@ int main(int argc, char const *argv[])
 	}
 	printf("--------End of result----------\n");
 	pthread_join(write_thread, NULL);
-	//pthread_barrier_destroy(&barrier_work_main);
+	pthread_barrier_destroy(&barrier_work_main);
 
 	// flush after read byte
 	if (tcflush(uart_device.devicename, TCIFLUSH) != 0) {
