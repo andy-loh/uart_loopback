@@ -202,7 +202,8 @@ int main(int argc, char const *argv[])
 
 	int count = 0 ;
 	printf("-----------Reading-----------\n");
-	do {
+	count = read(uart_device.devicename, Rx_Data, COUNT);
+	/*do {
 		count = read(uart_device.devicename, &Rx_Data[read_count_in_byte], COUNT);
 		if (count == 0){
 			printf("Count = 0\n");
@@ -221,7 +222,7 @@ int main(int argc, char const *argv[])
 			read_count_in_byte += count;
 		}
 
-	} while (read_count_in_byte != COUNT );
+	} while (read_count_in_byte != COUNT ); */
 
 	printf("------------Result-------------\n");
 	if ( err == 0) {
