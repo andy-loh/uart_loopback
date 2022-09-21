@@ -44,17 +44,14 @@
 //#include <st_defines.h>
 //#include <st_log.h>
 
-#define COUNT 10
+#define COUNT 5
 #define SUCCESS 0
 #define FAILURE -1
 
 extern int errno ;
 
 pthread_barrier_t barrier_work_main;
-const unsigned char Tx_Data[COUNT] = {'A','1','B','2','C','Z','X','S','D','Q'};
-
-// declare the timeval struct to calculate the time required to read the bytes
-struct timeval tval_before, tval_after[COUNT], tval_result[COUNT];
+const unsigned char Tx_Data[COUNT] = {'A','1','B','2','C'};
 
 // A struct that passes parameters into a function that is used
 // by thread.
@@ -73,8 +70,7 @@ void *write_bytes(void* device)
 	if (write(fd, Tx_Data, COUNT) != COUNT) {
 		printf("error in write\n");
 	}
-	gettimeofday(&tval_before, NULL);
-	//pthread_barrier_wait(&barrier_work_main);
+	pthread_barrier_wait(&barrier_work_main);
 }
 
 speed_t convertIntToSpeedType(unsigned int baud_rate)
@@ -151,16 +147,15 @@ int main(int argc, char const *argv[])
 		goto close_io;
 	}
 
-
 	// setting the UART baud rate from arguments
-	printf("Changing the Baud rate.............\n");
-	printf("The baud rate is successfully set at : %u\n",uart_device.baudrate);
+	// printf("Changing the Baud rate.............\n");
+	// printf("The baud rate is successfully set at : %u\n",uart_device.baudrate);
 
 	// set the baud rate
-	if ( cfsetspeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate)) != 0) {
-		printf("Fail to set the baud rate!\n");
-		goto close_io;
-	}
+	// if ( cfsetspeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate)) != 0) {
+	// 	printf("Fail to set the baud rate!\n");
+	// 	goto close_io;
+	// }
 
 	l_uart_config.c_cc[VTIME] = 0;
 	l_uart_config.c_cc[VMIN] = 0;
@@ -170,7 +165,6 @@ int main(int argc, char const *argv[])
 		printf("fail to activate the setting!\n");
 		goto restore_default_config;
 	}
-
 
 	// flush before reading byte
 	if (tcflush(uart_device.devicename, TCIOFLUSH) != 0) {
@@ -213,7 +207,7 @@ int main(int argc, char const *argv[])
 			break;
 		}
 		else {
-			gettimeofday(&tval_after[read_count_in_byte], NULL);
+			// gettimeofday(&tval_after[read_count_in_byte], NULL);
 			read_count_in_byte += count;
 		}
 
