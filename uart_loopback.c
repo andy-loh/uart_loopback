@@ -52,6 +52,7 @@ extern int errno ;
 
 pthread_barrier_t barrier_work_main;
 const unsigned char Tx_Data[COUNT] = {'A','1','B','2','C'};
+struct timeval tval_before, tval_after[COUNT], tval_result[COUNT];
 
 // A struct that passes parameters into a function that is used
 // by thread.
@@ -70,6 +71,7 @@ void *write_bytes(void* device)
 	if (write(fd, Tx_Data, COUNT) != COUNT) {
 		printf("error in write\n");
 	}
+	gettimeofday(&tval_before, NULL);
 	// pthread_barrier_wait(&barrier_work_main);
 }
 
@@ -148,15 +150,15 @@ int main(int argc, char const *argv[])
 	}
 
 	// setting the UART baud rate from arguments
-	// printf("Changing the Baud rate.............\n");
-	// printf("The baud rate is successfully set at : %u\n",uart_device.baudrate);
+	printf("Changing the Baud rate.............\n");
+	printf("The baud rate is successfully set at : %u\n",uart_device.baudrate);
 
 	// set the baud rate
 	// if ( cfsetspeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate)) != 0) {
 	// 	printf("Fail to set the baud rate!\n");
 	// 	goto close_io;
 	// }
-
+	l_uart_config.c_cflag |= convertIntToSpeedType(uart_device.baudrate) | CS8 | CREAD | CLOCAL;
 	l_uart_config.c_cc[VTIME] = 0;
 	l_uart_config.c_cc[VMIN] = 0;
 
@@ -174,7 +176,7 @@ int main(int argc, char const *argv[])
 	// create a thread that writes bytes to tx pin
 	pthread_t write_thread;
 	// init a thread barrier with 2 counts
-	//pthread_barrier_init(&barrier_work_main,NULL,2);
+	pthread_barrier_init(&barrier_work_main,NULL,2);
 
 	// the rx data with the same size as tx data
 	unsigned char Rx_Data[COUNT];
@@ -187,9 +189,13 @@ int main(int argc, char const *argv[])
 
 	// synchronize main thread and worker thread
 	// first barrier count here
-	//pthread_barrier_wait(&barrier_work_main);
+	pthread_barrier_wait(&barrier_work_main);
 
 	int count = 0 ;
+	double time_elapsed[COUNT];
+	double time_elapsed_per_bit[COUNT];
+	double time_expected =(double) (8*COUNT) / uart_device.baudrate ;
+	double time_difference;
 	printf("-----------Reading-----------\n");
 
 	do {
@@ -207,7 +213,7 @@ int main(int argc, char const *argv[])
 			break;
 		}
 		else {
-			// gettimeofday(&tval_after[read_count_in_byte], NULL);
+			gettimeofday(&tval_after[read_count_in_byte], NULL);
 			read_count_in_byte += count;
 			printf("Count : %d\n", count);
 		}
@@ -217,6 +223,22 @@ int main(int argc, char const *argv[])
 
 	printf("------------Result-------------\n");
 
+	for (int i =0 ; i < COUNT; i++ )
+	{
+		timersub(&tval_after[i], &tval_before, &tval_result[i]);
+		time_elapsed[i] = (double)tval_result[i].tv_sec + ((double)tval_result[i].tv_usec/1000000.0f);
+
+		if (i > 0) {
+			time_elapsed_per_bit[i] = time_elapsed[i] - time_elapsed[i-1];
+		}
+		else {
+			time_elapsed_per_bit[i] = time_elapsed[i];
+		}
+
+		//printf("The reading takes %f ms\n", time_elapsed_per_bit[i]*1000);
+	}
+
+	time_difference = time_elapsed[COUNT-1] -  time_expected ;
 	for (int i = 0; i < read_count_in_byte && read_count_in_byte <= COUNT; i++) {
 		if (Tx_Data[i] != Rx_Data[i]) {
 			printf("Tx = %c, Rx = %c (Mismatch)\n", Tx_Data[i], Rx_Data[i]);
