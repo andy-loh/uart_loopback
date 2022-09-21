@@ -203,6 +203,14 @@ int main(int argc, char const *argv[])
 	int count = 0 ;
 	printf("-----------Reading-----------\n");
 	count = read(uart_device.devicename, Rx_Data, COUNT);
+	if (count < 0) {
+		//goto clos
+		printf("reading failed!\n");
+		fprintf(stderr, "Value of errno: %d\n", errno);
+		fprintf(stderr, "Error opening file: %s\n", strerror(errno));
+		err = FAILURE;
+		goto restore_default_config;
+	}
 	/*do {
 		count = read(uart_device.devicename, &Rx_Data[read_count_in_byte], COUNT);
 		if (count == 0){
