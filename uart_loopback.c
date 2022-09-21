@@ -216,6 +216,17 @@ int main(int argc, char const *argv[])
 	} while (read_count_in_byte != COUNT );
 
 	printf("------------Result-------------\n");
+
+	for (int i = 0; i < read_count_in_byte && read_count_in_byte <= COUNT; i++) {
+		if (Tx_Data[i] != Rx_Data[i]) {
+			printf("Tx = %c, Rx = %c (Mismatch)\n", Tx_Data[i], Rx_Data[i]);
+			err = FAILURE;
+		}
+		else {
+			printf("Tx = %c, Rx = %c\n", Tx_Data[i], Rx_Data[i]);
+			err = SUCCESS;
+		}
+	}
 	if ( err == 0) {
 		printf("Data match SUCCESS!\n");
 	}
