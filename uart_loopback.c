@@ -209,6 +209,7 @@ int main(int argc, char const *argv[])
 		else {
 			// gettimeofday(&tval_after[read_count_in_byte], NULL);
 			read_count_in_byte += count;
+			printf("Count : %d\n", count);
 		}
 
 	} while (read_count_in_byte != COUNT );
