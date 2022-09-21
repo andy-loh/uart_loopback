@@ -127,7 +127,7 @@ int main(int argc, char const *argv[])
 
 	strcpy(sDevice,argv[1]);
 	uart_device.baudrate = atoi(argv[2]);
-	uart_device.devicename = open(&sDevice, O_RDWR | O_NOCTTY | O_NDELAY );
+	uart_device.devicename = open(sDevice, O_RDWR | O_NOCTTY | O_NDELAY );
 
 	// Open the device in nonblocking mode
 	if (fcntl(uart_device.devicename, F_SETFL, FNDELAY) != 0)
