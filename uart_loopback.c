@@ -51,7 +51,7 @@
 extern int errno ;
 
 pthread_barrier_t barrier_work_main;
-const unsigned char Tx_Data[COUNT] = {'A','1','B','2','C','A','1','B','2','C'};
+const unsigned char Tx_Data[COUNT] = {'A','1','B','2','C','Z','X','S','D','Q'};
 
 // declare the timeval struct to calculate the time required to read the bytes
 struct timeval tval_before, tval_after[COUNT], tval_result[COUNT];
@@ -127,7 +127,7 @@ int main(int argc, char const *argv[])
 
 	strcpy(sDevice,argv[1]);
 	uart_device.baudrate = atoi(argv[2]);
-	uart_device.devicename = open(sDevice, O_RDWR | O_NOCTTY | O_NDELAY );
+	uart_device.devicename = open(sDevice, O_RDWR | O_NOCTTY );
 
 	// make sure the uart device is correctly opened
 	if (uart_device.devicename < 0) {
@@ -135,12 +135,15 @@ int main(int argc, char const *argv[])
 		goto end;
 	}
 
+	if (fcntl(uart_device.devicename, F_SETFL, FNDELAY) != 0)
+	{
+		err = FAILURE;
+		goto close_io;
+	}
+
 	printf("Executing UART LOOPBACK TEST for device %s\n", sDevice);
 
 	struct termios l_uart_config, l_ori_uart_config;
-
-	// Clear all the options
-	bzero(&l_uart_config, sizeof(l_uart_config));
 
 	if ( ( tcgetattr(uart_device.devicename, &l_uart_config)) != 0
 	     || ( tcgetattr(uart_device.devicename, &l_ori_uart_config ) ) != 0 ) {
@@ -202,7 +205,7 @@ int main(int argc, char const *argv[])
 			continue;
 		}
 		else if (count < 0) {
-			//goto clos
+			//goto close
 			printf("reading failed!\n");
 			fprintf(stderr, "Value of errno: %d\n", errno);
 			fprintf(stderr, "Error opening file: %s\n", strerror(errno));
