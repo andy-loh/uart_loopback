@@ -153,13 +153,13 @@ int main(int argc, char const *argv[])
 	printf("Changing the Baud rate.............\n");
 	printf("The baud rate is successfully set at : %u\n",uart_device.baudrate);
 
-	int ispeed = cfsetispeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate));
-	int ospeed = cfsetospeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate));
-	// set the baud rate
-	if ( ( ispeed || ospeed ) != 0) {
-		printf("Fail to set the baud rate!\n");
-		goto close_io;
-	}
+	// int ispeed = cfsetispeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate));
+	// int ospeed = cfsetospeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate));
+	// // set the baud rate
+	// if ( ( ispeed || ospeed ) != 0) {
+	// 	printf("Fail to set the baud rate!\n");
+	// 	goto close_io;
+	// }
 
 	l_uart_config.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
 		| INLCR | IGNCR | ICRNL | IXON);
