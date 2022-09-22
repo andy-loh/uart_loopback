@@ -154,17 +154,17 @@ int main(int argc, char const *argv[])
 	printf("The baud rate is successfully set at : %u\n",uart_device.baudrate);
 
 	// set the baud rate
-	// if ( cfsetspeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate)) != 0) {
-	// 	printf("Fail to set the baud rate!\n");
-	// 	goto close_io;
-	// }
+	if ( cfsetspeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate)) != 0) {
+		printf("Fail to set the baud rate!\n");
+		goto close_io;
+	}
 
 	l_uart_config.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
 		| INLCR | IGNCR | ICRNL | IXON);
 	l_uart_config.c_oflag &= ~OPOST;
 	l_uart_config.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
 	l_uart_config.c_cflag &= ~(CSIZE | PARENB);
-	l_uart_config.c_cflag = convertIntToSpeedType(uart_device.baudrate) | CS8 | CREAD | CLOCAL;
+	l_uart_config.c_cflag |= convertIntToSpeedType(uart_device.baudrate) | CS8 | CREAD | CLOCAL;
 	l_uart_config.c_cc[VTIME] = 1;
 	l_uart_config.c_cc[VMIN] = 0;
 
