@@ -152,6 +152,7 @@ int main(int argc, char const *argv[])
 	// setting the UART baud rate from arguments
 	printf("Changing the Baud rate.............\n");
 	printf("The baud rate is successfully set at : %u\n",uart_device.baudrate);
+	speed_t s_baudrate = convertIntToSpeedType(uart_device.baudrate);
 
 	// int ispeed = cfsetispeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate));
 	// int ospeed = cfsetospeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate));
@@ -166,7 +167,7 @@ int main(int argc, char const *argv[])
 	l_uart_config.c_oflag &= ~OPOST;
 	l_uart_config.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
 	l_uart_config.c_cflag &= ~(CSIZE | PARENB);
-	l_uart_config.c_cflag |= convertIntToSpeedType(uart_device.baudrate) | CS8 | CREAD | CLOCAL;
+	l_uart_config.c_cflag |= s_baudrate | CS8 | CREAD | CLOCAL;
 	l_uart_config.c_cc[VTIME] = 1;
 	l_uart_config.c_cc[VMIN] = 0;
 
