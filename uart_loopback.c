@@ -44,7 +44,7 @@
 //#include <st_defines.h>
 //#include <st_log.h>
 
-#define COUNT 5
+#define COUNT 100
 #define SUCCESS 0
 #define FAILURE -1
 
@@ -245,10 +245,10 @@ int main(int argc, char const *argv[])
 		printf("The reading takes %f ms\n", time_elapsed_per_bit[i]*1000);
 	}
 
-	time_difference = time_elapsed_per_bit[COUNT-1] -  time_expected ;
+	time_difference = time_elapsed - time_expected ;
 	printf("The difference of the time is %f ms\n", time_difference*1000);
 	printf("The expected time is %f ms\n",time_expected*1000);
-	printf("The reading time is %f ms\n",time_elapsed_per_bit[COUNT-1] *1000);
+	printf("The reading time is %f ms\n",time_elapsed*1000);
 	for (int i = 0; i < read_count_in_byte && read_count_in_byte <= COUNT; i++) {
 		if (Tx_Data[i] != Rx_Data[i]) {
 			printf("Tx = %c, Rx = %c (Mismatch)\n", Tx_Data[i], Rx_Data[i]);
