@@ -199,7 +199,7 @@ int main(int argc, char const *argv[])
 	pthread_barrier_wait(&barrier_work_main);
 
 	int count = 0 ;
-	double time_elapsed[COUNT];
+	double time_elapsed;
 	double time_elapsed_per_bit[COUNT];
 	double time_expected =(double) (8*COUNT) / uart_device.baudrate ;
 	double time_difference;
@@ -235,20 +235,20 @@ int main(int argc, char const *argv[])
 		timersub(&tval_after[i], &tval_before, &tval_result[i]);
 		time_elapsed_per_bit[i] = (double)tval_result[i].tv_sec + ((double)tval_result[i].tv_usec/1000000.0f);
 
-		// if (i > 0) {
-		// 	time_elapsed_per_bit[i] = time_elapsed[i] - time_elapsed[i-1];
-		// }
-		// else {
-		// 	time_elapsed_per_bit[i] = time_elapsed[i];
-		// }
-
+		if (i > 0) {
+			time_elapsed_per_bit[i] = time_elapsed_per_bit[i] - time_elapsed_per_bit[i-1];
+		}
+		else {
+			time_elapsed_per_bit[i] = time_elapsed_per_bit[i];
+		}
+		time_elapsed += time_elapsed_per_bit[i];
 		printf("The reading takes %f ms\n", time_elapsed_per_bit[i]*1000);
 	}
 
-	time_difference = time_elapsed[COUNT-1] -  time_expected ;
+	time_difference = time_elapsed_per_bit[COUNT-1] -  time_expected ;
 	printf("The difference of the time is %f ms\n", time_difference*1000);
 	printf("The expected time is %f ms\n",time_expected*1000);
-	printf("The reading time is %f ms\n",time_elapsed[COUNT-1] *1000);
+	printf("The reading time is %f ms\n",time_elapsed_per_bit[COUNT-1] *1000);
 	for (int i = 0; i < read_count_in_byte && read_count_in_byte <= COUNT; i++) {
 		if (Tx_Data[i] != Rx_Data[i]) {
 			printf("Tx = %c, Rx = %c (Mismatch)\n", Tx_Data[i], Rx_Data[i]);
