@@ -175,6 +175,9 @@ int main(int argc, char const *argv[])
 		goto restore_default_config;
 	}
 
+	if ( cfgetispeed(&l_uart_config) != convertIntToSpeedType(uart_device.baudrate) ) {
+		printf("error get speed!\n");
+	}
 	// flush before reading byte
 	if (tcflush(uart_device.devicename, TCIOFLUSH) != 0) {
 		goto restore_default_config;
