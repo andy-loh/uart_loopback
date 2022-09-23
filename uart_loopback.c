@@ -44,7 +44,7 @@
 //#include <st_defines.h>
 //#include <st_log.h>
 
-#define COUNT 100
+#define COUNT 5
 #define SUCCESS 0
 #define FAILURE -1
 
@@ -208,6 +208,7 @@ int main(int argc, char const *argv[])
 	do {
 		count = read(uart_device.devicename, &Rx_Data[read_count_in_byte], 1);
 		if (count == 0){
+			printf("Count = 0\n");
 			continue;
 		}
 		else if (count < 0) {
@@ -224,6 +225,7 @@ int main(int argc, char const *argv[])
 			}
 			gettimeofday(&tval_after[read_count_in_byte], NULL);
 			read_count_in_byte += count;
+			printf("Count = %d\n", count);
 		}
 
 	} while (read_count_in_byte != COUNT );
@@ -251,11 +253,11 @@ int main(int argc, char const *argv[])
 	printf("The reading time is %f ms\n",time_elapsed*1000);
 	for (int i = 0; i < read_count_in_byte && read_count_in_byte <= COUNT; i++) {
 		if (Tx_Data[i] != Rx_Data[i]) {
-			printf("Tx = %c, Rx = %c (Mismatch)\n", Tx_Data[i], Rx_Data[i]);
+			//printf("Tx = %c, Rx = %c (Mismatch)\n", Tx_Data[i], Rx_Data[i]);
 			err = FAILURE;
 		}
 		else {
-			printf("Tx = %c, Rx = %c\n", Tx_Data[i], Rx_Data[i]);
+			// printf("Tx = %c, Rx = %c\n", Tx_Data[i], Rx_Data[i]);
 			err = SUCCESS;
 		}
 	}
