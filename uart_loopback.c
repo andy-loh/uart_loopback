@@ -71,7 +71,8 @@ void *write_bytes(void* device)
 	if (write(fd, Tx_Data, COUNT) != COUNT) {
 		printf("error in write\n");
 	}
-	gettimeofday(&tval_before, NULL);
+
+	// add a barrier here
 	pthread_barrier_wait(&barrier_work_main);
 }
 
@@ -125,18 +126,15 @@ int main(int argc, char const *argv[])
 
 	strcpy(sDevice,argv[1]);
 	uart_device.baudrate = atoi(argv[2]);
-	uart_device.devicename = open(sDevice, O_RDWR | O_NOCTTY );
+	// open the uart device for reading and writing || not control tty because
+	// we don't want to get killed if linenoise sends CTRL-C || open the device
+	// in non-blocking mode/
+	uart_device.devicename = open(sDevice, O_RDWR | O_NOCTTY | O_NDELAY);
 
 	// make sure the uart device is correctly opened
 	if (uart_device.devicename < 0) {
                 printf("io failed to open device\n");
 		goto end;
-	}
-
-	if (fcntl(uart_device.devicename, F_SETFL, FNDELAY) != 0)
-	{
-		err = FAILURE;
-		goto close_io;
 	}
 
 	printf("Executing UART LOOPBACK TEST for device %s\n", sDevice);
@@ -152,22 +150,22 @@ int main(int argc, char const *argv[])
 	// setting the UART baud rate from arguments
 	printf("Changing the Baud rate.............\n");
 	printf("The baud rate is successfully set at : %u\n",uart_device.baudrate);
-	speed_t s_baudrate = convertIntToSpeedType(uart_device.baudrate);
 
-	// int ispeed = cfsetispeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate));
-	// int ospeed = cfsetospeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate));
-	// // set the baud rate
-	// if ( ( ispeed || ospeed ) != 0) {
-	// 	printf("Fail to set the baud rate!\n");
-	// 	goto close_io;
-	// }
+	int ispeed = cfsetispeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate));
+	int ospeed = cfsetospeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate));
+
+	// set the baud rate
+	if ( ispeed != 0 || ospeed != 0 ) {
+		printf("Fail to set the baud rate!\n");
+		goto close_io;
+	}
 
 	l_uart_config.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
 		| INLCR | IGNCR | ICRNL | IXON);
 	l_uart_config.c_oflag &= ~OPOST;
 	l_uart_config.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
 	l_uart_config.c_cflag &= ~(CSIZE | PARENB);
-	l_uart_config.c_cflag |= s_baudrate | CS8 | CREAD | CLOCAL;
+	l_uart_config.c_cflag |= CS8 | CREAD | CLOCAL;
 	l_uart_config.c_cc[VTIME] = 1;
 	l_uart_config.c_cc[VMIN] = 0;
 
@@ -210,7 +208,6 @@ int main(int argc, char const *argv[])
 	do {
 		count = read(uart_device.devicename, &Rx_Data[read_count_in_byte], 1);
 		if (count == 0){
-			printf("Count = 0\n");
 			continue;
 		}
 		else if (count < 0) {
@@ -222,11 +219,12 @@ int main(int argc, char const *argv[])
 			break;
 		}
 		else {
+			if ( read_count_in_byte == 0 ){
+				gettimeofday(&tval_before, NULL);
+			}
 			gettimeofday(&tval_after[read_count_in_byte], NULL);
 			read_count_in_byte += count;
-			printf("Count : %d\n", count);
 		}
-		printf("Looping...\n");
 
 	} while (read_count_in_byte != COUNT );
 
@@ -235,14 +233,14 @@ int main(int argc, char const *argv[])
 	for (int i =0 ; i < COUNT; i++ )
 	{
 		timersub(&tval_after[i], &tval_before, &tval_result[i]);
-		time_elapsed[i] = (double)tval_result[i].tv_sec + ((double)tval_result[i].tv_usec/1000000.0f);
+		time_elapsed_per_bit[i] = (double)tval_result[i].tv_sec + ((double)tval_result[i].tv_usec/1000000.0f);
 
-		if (i > 0) {
-			time_elapsed_per_bit[i] = time_elapsed[i] - time_elapsed[i-1];
-		}
-		else {
-			time_elapsed_per_bit[i] = time_elapsed[i];
-		}
+		// if (i > 0) {
+		// 	time_elapsed_per_bit[i] = time_elapsed[i] - time_elapsed[i-1];
+		// }
+		// else {
+		// 	time_elapsed_per_bit[i] = time_elapsed[i];
+		// }
 
 		printf("The reading takes %f ms\n", time_elapsed_per_bit[i]*1000);
 	}
