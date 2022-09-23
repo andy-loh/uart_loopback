@@ -233,7 +233,7 @@ int main(int argc, char const *argv[])
 
 	} while (read_count_in_byte != COUNT );
 
-	print("Reading SUCCESS!\n");
+	printf("Reading SUCCESS!\n");
 	printf("-----------Result------------\n");
 
 	for (int i =0 ; i < COUNT; i++ )
