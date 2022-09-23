@@ -229,7 +229,6 @@ int main(int argc, char const *argv[])
 			}
 			gettimeofday(&tval_after[read_count_in_byte], NULL);
 			read_count_in_byte += count;
-			printf("time = %f\n", (double) tval_after[read_count_in_byte]);
 		}
 
 	} while (read_count_in_byte != COUNT );
@@ -248,7 +247,7 @@ int main(int argc, char const *argv[])
 		// 	time_elapsed_per_bit[i] = time_elapsed_per_bit[i];
 		}
 		time_elapsed += time_elapsed_per_bit[i];
-		//printf("The reading takes %f ms\n", time_elapsed_per_bit[i]*1000);
+		printf("The reading takes %f ms\n", time_elapsed_per_bit[i]*1000);
 	}
 
 	time_difference = time_elapsed - time_expected ;
