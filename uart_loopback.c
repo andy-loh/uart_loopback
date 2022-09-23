@@ -229,7 +229,7 @@ int main(int argc, char const *argv[])
 			}
 			gettimeofday(&tval_after[read_count_in_byte], NULL);
 			read_count_in_byte += count;
-			printf("time = %f\n", (double) tval_after[i]);
+			printf("time = %f\n", (double) tval_after[read_count_in_byte]);
 		}
 
 	} while (read_count_in_byte != COUNT );
