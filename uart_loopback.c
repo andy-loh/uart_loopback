@@ -202,7 +202,7 @@ int main(int argc, char const *argv[])
 	pthread_barrier_wait(&barrier_work_main);
 
 	int count = 0 ;
-	double time_elapsed;
+	double time_elapsed = 0;
 	double time_elapsed_per_bit[COUNT];
 	double time_expected =(double) (8*COUNT) / uart_device.baudrate ;
 	double time_difference;
@@ -251,7 +251,7 @@ int main(int argc, char const *argv[])
 	}
 
 	time_difference = time_elapsed - time_expected ;
-	printf("The difference of the time is %f ms\n", time_difference*1000);
+	// printf("The difference of the time is %f ms\n", time_difference*1000);
 	printf("The expected time is %f ms\n",time_expected*1000);
 	printf("The reading time is %f ms\n",time_elapsed*1000);
 	for (int i = 0; i < read_count_in_byte && read_count_in_byte <= COUNT; i++) {
