@@ -208,7 +208,7 @@ int main(int argc, char const *argv[])
 	do {
 		count = read(uart_device.devicename, &Rx_Data[read_count_in_byte], 1);
 		if (count == 0){
-			printf("Count = 0\n");
+			// printf("Count = 0\n");
 			continue;
 		}
 		else if (count < 0) {
@@ -225,7 +225,7 @@ int main(int argc, char const *argv[])
 			}
 			gettimeofday(&tval_after[read_count_in_byte], NULL);
 			read_count_in_byte += count;
-			printf("Count = %d\n", count);
+			// printf("Count = %d\n", count);
 		}
 
 	} while (read_count_in_byte != COUNT );
