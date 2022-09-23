@@ -115,6 +115,7 @@ int main(int argc, char const *argv[])
 	// start with an error return value
 	int err = FAILURE;
 
+	printf("Trial 1\n");
 	// a string that stores the device driver name
 	char sDevice[128];
 
@@ -228,7 +229,7 @@ int main(int argc, char const *argv[])
 			}
 			gettimeofday(&tval_after[read_count_in_byte], NULL);
 			read_count_in_byte += count;
-			// printf("Count = %d\n", count);
+			printf("time = %f\n", (double) tval_after);
 		}
 
 	} while (read_count_in_byte != COUNT );
@@ -243,8 +244,8 @@ int main(int argc, char const *argv[])
 
 		if (i > 0) {
 			time_elapsed_per_bit[i] = time_elapsed_per_bit[i] - time_elapsed_per_bit[i-1];
-		} else {
-			time_elapsed_per_bit[i] = time_elapsed_per_bit[i];
+		// } else {
+		// 	time_elapsed_per_bit[i] = time_elapsed_per_bit[i];
 		}
 		time_elapsed += time_elapsed_per_bit[i];
 		//printf("The reading takes %f ms\n", time_elapsed_per_bit[i]*1000);
