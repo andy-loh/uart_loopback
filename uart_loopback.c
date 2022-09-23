@@ -206,6 +206,9 @@ int main(int argc, char const *argv[])
 	double time_elapsed[COUNT];
 	double time_elapsed_per_bit[COUNT];
 	double time_expected =(double) (8*COUNT) / uart_device.baudrate ;
+	int divisor = (100000000) / (16 * uart_device.baudrate);
+	int real_baudrate = ( 100000000 ) / (16 * divisor);
+	printf("The real baud rate is %d\n", real_baudrate);
 	double time_difference;
 	printf("-----------Reading-----------\n");
 
