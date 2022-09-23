@@ -44,7 +44,7 @@
 //#include <st_defines.h>
 //#include <st_log.h>
 
-#define COUNT 5
+#define COUNT 50
 #define SUCCESS 0
 #define FAILURE -1
 
@@ -233,7 +233,8 @@ int main(int argc, char const *argv[])
 
 	} while (read_count_in_byte != COUNT );
 
-	printf("------------Result-------------\n");
+	print("Reading SUCCESS!\n");
+	printf("-----------Result------------\n");
 
 	for (int i =0 ; i < COUNT; i++ )
 	{
@@ -242,8 +243,7 @@ int main(int argc, char const *argv[])
 
 		if (i > 0) {
 			time_elapsed_per_bit[i] = time_elapsed_per_bit[i] - time_elapsed_per_bit[i-1];
-		}
-		else {
+		} else {
 			time_elapsed_per_bit[i] = time_elapsed_per_bit[i];
 		}
 		time_elapsed += time_elapsed_per_bit[i];
@@ -258,8 +258,7 @@ int main(int argc, char const *argv[])
 		if (Tx_Data[i] != Rx_Data[i]) {
 			//printf("Tx = %c, Rx = %c (Mismatch)\n", Tx_Data[i], Rx_Data[i]);
 			err = FAILURE;
-		}
-		else {
+		} else {
 			// printf("Tx = %c, Rx = %c\n", Tx_Data[i], Rx_Data[i]);
 			err = SUCCESS;
 		}
@@ -270,7 +269,7 @@ int main(int argc, char const *argv[])
 	else {
 		printf("Data match FAIL!\n");
 	}
-	printf("--------End of result----------\n");
+	printf("-------End of result---------\n");
 	pthread_join(write_thread, NULL);
 	pthread_barrier_destroy(&barrier_work_main);
 
