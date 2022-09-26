@@ -45,7 +45,7 @@
 //#include <st_log.h>
 
 // the number of bytes to write
-#define COUNT 50
+#define COUNT 100
 #define SUCCESS 0
 #define FAILURE -1
 
@@ -262,11 +262,11 @@ int main(int argc, char const *argv[])
 	printf("The reading time is %f ms\n",time_elapsed[COUNT-1]*1000);
 	for (int i = 0; i < read_count_in_byte && read_count_in_byte <= COUNT; i++) {
 		if (Tx_Data[i] != Rx_Data[i]) {
-			printf("Tx = %c, Rx = %c (Mismatch)\n", Tx_Data[i], Rx_Data[i]);
+			//printf("Tx = %c, Rx = %c (Mismatch)\n", Tx_Data[i], Rx_Data[i]);
 			err = FAILURE;
 			break;
 		} else {
-			printf("Tx = %c, Rx = %c\n", Tx_Data[i], Rx_Data[i]);
+			// printf("Tx = %c, Rx = %c\n", Tx_Data[i], Rx_Data[i]);
 			err = SUCCESS;
 		}
 	}
