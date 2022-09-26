@@ -52,7 +52,7 @@
 extern int errno ;
 
 pthread_barrier_t barrier_work_main;
-const unsigned char Tx_Data[COUNT] = {'A','1','B','2','C'};
+const unsigned char Tx_Data[COUNT] = "Hello World from StarFive Technology International";
 struct timeval tval_before, tval_after[COUNT], tval_result[COUNT];
 
 // A struct that passes parameters into a function that is used
@@ -253,7 +253,7 @@ int main(int argc, char const *argv[])
 		} else {
 			time_elapsed_per_bit[i] = time_elapsed[i];
 		}
-		printf("The reading takes %f ms\n", time_elapsed_per_bit[i]*1000);
+		//printf("The reading takes %f ms\n", time_elapsed_per_bit[i]*1000);
 	}
 
 	time_difference = time_elapsed[COUNT-1] - time_expected ;
