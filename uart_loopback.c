@@ -52,7 +52,7 @@
 extern int errno ;
 
 pthread_barrier_t barrier_work_main;
-const unsigned char Tx_Data[COUNT] = "Hello World from StarFive Technology International";
+const unsigned char Tx_Data[COUNT] = "Hello World from StarFive Technology International!";
 struct timeval tval_before, tval_after[COUNT], tval_result[COUNT];
 
 // A struct that passes parameters into a function that is used
@@ -262,11 +262,11 @@ int main(int argc, char const *argv[])
 	printf("The reading time is %f ms\n",time_elapsed[COUNT-1]*1000);
 	for (int i = 0; i < read_count_in_byte && read_count_in_byte <= COUNT; i++) {
 		if (Tx_Data[i] != Rx_Data[i]) {
-			//printf("Tx = %c, Rx = %c (Mismatch)\n", Tx_Data[i], Rx_Data[i]);
+			printf("Tx = %c, Rx = %c (Mismatch)\n", Tx_Data[i], Rx_Data[i]);
 			err = FAILURE;
 			break;
 		} else {
-			// printf("Tx = %c, Rx = %c\n", Tx_Data[i], Rx_Data[i]);
+			printf("Tx = %c, Rx = %c\n", Tx_Data[i], Rx_Data[i]);
 			err = SUCCESS;
 		}
 	}
