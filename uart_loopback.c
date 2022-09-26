@@ -44,6 +44,7 @@
 //#include <st_defines.h>
 //#include <st_log.h>
 
+// the number of bytes to write
 #define COUNT 50
 #define SUCCESS 0
 #define FAILURE -1
@@ -115,10 +116,10 @@ int main(int argc, char const *argv[])
 	// start with an error return value
 	int err = FAILURE;
 
-	printf("Trial 1\n");
 	// a string that stores the device driver name
 	char sDevice[128];
 
+	// make sure the correct input arguments number
 	if (argc != 3) {
 		printf("Please input two arguments!\n");
 		printf("Example: ./uart_loopback /dev/ttyS3 9600\n");
@@ -129,7 +130,7 @@ int main(int argc, char const *argv[])
 	uart_device.baudrate = atoi(argv[2]);
 	// open the uart device for reading and writing || not control tty because
 	// we don't want to get killed if linenoise sends CTRL-C || open the device
-	// in non-blocking mode/
+	// in non-blocking mode
 	uart_device.devicename = open(sDevice, O_RDWR | O_NOCTTY | O_NDELAY);
 
 	// make sure the uart device is correctly opened
@@ -161,6 +162,8 @@ int main(int argc, char const *argv[])
 		goto close_io;
 	}
 
+	// the configuration for input/output/control/local mode
+	// clear the settings for the following flags
 	l_uart_config.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
 		| INLCR | IGNCR | ICRNL | IXON);
 	l_uart_config.c_oflag &= ~OPOST;
@@ -261,11 +264,13 @@ int main(int argc, char const *argv[])
 		if (Tx_Data[i] != Rx_Data[i]) {
 			//printf("Tx = %c, Rx = %c (Mismatch)\n", Tx_Data[i], Rx_Data[i]);
 			err = FAILURE;
+			break;
 		} else {
 			// printf("Tx = %c, Rx = %c\n", Tx_Data[i], Rx_Data[i]);
 			err = SUCCESS;
 		}
 	}
+
 	if ( err == 0) {
 		printf("Data match SUCCESS!\n");
 	}
