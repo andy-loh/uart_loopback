@@ -52,7 +52,7 @@
 extern int errno ;
 
 pthread_barrier_t barrier_work_main;
-const unsigned char Tx_Data[COUNT] = "Hello World from StarFive Technology International!";
+const unsigned char Tx_Data[COUNT] = "Hello World from StarFive Technology International";
 struct timeval tval_before, tval_after[COUNT], tval_result[COUNT];
 
 // A struct that passes parameters into a function that is used
