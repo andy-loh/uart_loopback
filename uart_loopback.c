@@ -262,7 +262,7 @@ int main(int argc, char const *argv[])
 
 		} while (read_count_in_byte != COUNT );
 
-		printf("========Result=========\n");
+		printf("============Result=============\n");
 
 		for (int i =0 ; i < COUNT; i++ )
 		{
@@ -295,7 +295,7 @@ int main(int argc, char const *argv[])
 		else {
 			printf("Data match FAIL!\n");
 		}
-		printf("=====End of result=====\n");
+		printf("=========End of result=========\n");
 		pthread_join(write_thread, NULL);
 		pthread_barrier_destroy(&barrier_work_main);
 
