@@ -178,7 +178,7 @@ int main(int argc, char const *argv[])
 		}
 
 		// setting the UART baud rate from arguments
-		printf("******Changing baud rate******\n");
+		printf("*********Changing baud rate*********\n");
 		printf("BAUD RATE: %u\n",uart_device.baudrate);
 
 		int ispeed = cfsetispeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate));
@@ -262,7 +262,7 @@ int main(int argc, char const *argv[])
 
 		} while (read_count_in_byte != COUNT );
 
-		printf("============Result=============\n");
+		printf("==============Result===============\n");
 
 		for (int i =0 ; i < COUNT; i++ )
 		{
@@ -295,7 +295,7 @@ int main(int argc, char const *argv[])
 		else {
 			printf("Data match FAIL!\n");
 		}
-		printf("=========End of result=========\n");
+		printf("===========End of result===========\n");
 		pthread_join(write_thread, NULL);
 		pthread_barrier_destroy(&barrier_work_main);
 
