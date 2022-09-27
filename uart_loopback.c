@@ -126,9 +126,9 @@ int main(int argc, char const *argv[])
 	int max_baudrate;
 
 	// make sure the correct input arguments number
-	if (argc != 3) {
-		printf("Please input two arguments!\n");
-		printf("Example: ./uart_loopback /dev/ttyS3 9600\n");
+	if (argc != 4) {
+		printf("Please input three arguments!\n");
+		printf("Example: ./uart_loopback /dev/ttyS3 9600 115200\n");
 		goto end;
 	}
 
