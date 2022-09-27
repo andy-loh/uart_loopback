@@ -52,7 +52,10 @@
 extern int errno ;
 
 pthread_barrier_t barrier_work_main;
-const unsigned char Tx_Data[COUNT] = "Hello World from StarFive Technology International";
+int baudrate_ls[25] = {50,75,110,134,150,200,300,600,1200,2400,4800,9600,19200,38400,
+		       57600,115200,230400,460800,921600,1000000,1152000,2000000,
+		       2500000,3000000,4000000};
+const unsigned char TX_DATA[COUNT] = "Hello World from StarFive Technology International";
 struct timeval tval_before, tval_after[COUNT], tval_result[COUNT];
 
 // A struct that passes parameters into a function that is used
@@ -69,7 +72,7 @@ void *write_bytes(void* device)
 	unsigned int baudrate = device_ptr->baudrate;
 
 	// synchronize main thread and worker thread
-	if (write(fd, Tx_Data, COUNT) != COUNT) {
+	if (write(fd, TX_DATA, COUNT) != COUNT) {
 		printf("error in write\n");
 	}
 
@@ -118,6 +121,8 @@ int main(int argc, char const *argv[])
 
 	// a string that stores the device driver name
 	char sDevice[128];
+	int min_baudrate;
+	int max_baudrate;
 
 	// make sure the correct input arguments number
 	if (argc != 3) {
@@ -126,8 +131,22 @@ int main(int argc, char const *argv[])
 		goto end;
 	}
 
+	// copy the name of the device
 	strcpy(sDevice,argv[1]);
-	uart_device.baudrate = atoi(argv[2]);
+	min_baudrate = atoi(argv[2]);
+	max_baudrate = atoi(argv[3]);
+
+	int min_index = -1;
+	int max_index = -1;
+
+	for (int i = 0; index < sizeof(baudrate_ls); i++ ) {
+		if (baudrate_ls[i] == min_baudrate ) {
+			min_index = i;
+		}
+		else if ( baudrate_ls[i] == min_baudrate ) {
+			max_index = i;
+		}
+	}
 	// open the uart device for reading and writing || not control tty because
 	// we don't want to get killed if linenoise sends CTRL-C || open the device
 	// in non-blocking mode
@@ -141,149 +160,153 @@ int main(int argc, char const *argv[])
 
 	printf("Executing UART LOOPBACK TEST for device %s\n", sDevice);
 
-	struct termios l_uart_config, l_ori_uart_config;
+	for (int index = min_index; index < max_index; index ++ ) {
 
-	if ( ( tcgetattr(uart_device.devicename, &l_uart_config)) != 0
-	     || ( tcgetattr(uart_device.devicename, &l_ori_uart_config ) ) != 0 ) {
-		printf("Error getting attributes!\n");
-		goto close_io;
-	}
+		uart_device.baudrate = baudrate_ls[index];
+		struct termios l_uart_config, l_ori_uart_config;
 
-	// setting the UART baud rate from arguments
-	printf("Changing the Baud rate.............\n");
-	printf("The baud rate is successfully set at : %u\n",uart_device.baudrate);
-
-	int ispeed = cfsetispeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate));
-	int ospeed = cfsetospeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate));
-
-	// set the baud rate
-	if ( ispeed != 0 || ospeed != 0 ) {
-		printf("Fail to set the baud rate!\n");
-		goto close_io;
-	}
-
-	// the configuration for input/output/control/local mode
-	// clear the settings for the following flags
-	l_uart_config.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
-		| INLCR | IGNCR | ICRNL | IXON);
-	l_uart_config.c_oflag &= ~OPOST;
-	l_uart_config.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
-	l_uart_config.c_cflag &= ~(CSIZE | PARENB);
-	l_uart_config.c_cflag |= CS8 | CREAD | CLOCAL;
-	l_uart_config.c_cc[VTIME] = 0;
-	l_uart_config.c_cc[VMIN] = 0;
-
-	// activate the settings
-	if (tcsetattr(uart_device.devicename, TCSANOW, &l_uart_config) != 0) {
-		printf("fail to activate the setting!\n");
-		goto restore_default_config;
-	}
-
-	if ( cfgetispeed(&l_uart_config) != convertIntToSpeedType(uart_device.baudrate) ) {
-		printf("error get speed!\n");
-	}
-	// flush before reading byte
-	if (tcflush(uart_device.devicename, TCIOFLUSH) != 0) {
-		goto restore_default_config;
-	}
-
-	// create a thread that writes bytes to tx pin
-	pthread_t write_thread;
-	// init a thread barrier with 2 counts
-	pthread_barrier_init(&barrier_work_main,NULL,2);
-
-	// the rx data with the same size as tx data
-	unsigned char Rx_Data[COUNT];
-
-	// the variable that stores the number of bytes read
-	int read_count_in_byte = 0;
-
-	// create a thread to write bytes
-	pthread_create(&write_thread,NULL,&write_bytes,(void*)&uart_device);
-
-	// synchronize main thread and worker thread
-	// first barrier count here
-	pthread_barrier_wait(&barrier_work_main);
-
-	int count = 0 ;
-	double time_elapsed[COUNT];
-	double time_elapsed_per_bit[COUNT];
-	double time_expected =(double) (8*COUNT) / uart_device.baudrate ;
-	int divisor = (100000000) / (16 * uart_device.baudrate);
-	int real_baudrate = ( 100000000 ) / (16 * divisor);
-	printf("The divisor is %d\n", divisor);
-	printf("The real baud rate is %d\n", real_baudrate);
-	double time_difference;
-	printf("-----------Reading-----------\n");
-
-	do {
-		count = read(uart_device.devicename, &Rx_Data[read_count_in_byte], 1);
-		if (count == 0){
-			// printf("Count = 0\n");
-			continue;
+		if ( ( tcgetattr(uart_device.devicename, &l_uart_config)) != 0
+		|| ( tcgetattr(uart_device.devicename, &l_ori_uart_config ) ) != 0 ) {
+			printf("Error getting attributes!\n");
+			goto close_io;
 		}
-		else if (count < 0) {
-			//goto close
-			printf("reading failed!\n");
-			fprintf(stderr, "Value of errno: %d\n", errno);
-			fprintf(stderr, "Error opening file: %s\n", strerror(errno));
-			err = FAILURE;
-			break;
+
+		// setting the UART baud rate from arguments
+		printf("Changing the Baud rate.............\n");
+		printf("The baud rate is successfully set at : %u\n",uart_device.baudrate);
+
+		int ispeed = cfsetispeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate));
+		int ospeed = cfsetospeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate));
+
+		// set the baud rate
+		if ( ispeed != 0 || ospeed != 0 ) {
+			printf("Fail to set the baud rate!\n");
+			goto close_io;
+		}
+
+		// the configuration for input/output/control/local mode
+		// clear the settings for the following flags
+		l_uart_config.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP
+			| INLCR | IGNCR | ICRNL | IXON);
+		l_uart_config.c_oflag &= ~OPOST;
+		l_uart_config.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+		l_uart_config.c_cflag &= ~(CSIZE | PARENB);
+		l_uart_config.c_cflag |= CS8 | CREAD | CLOCAL;
+		l_uart_config.c_cc[VTIME] = 0;
+		l_uart_config.c_cc[VMIN] = 0;
+
+		// activate the settings
+		if (tcsetattr(uart_device.devicename, TCSANOW, &l_uart_config) != 0) {
+			printf("fail to activate the setting!\n");
+			goto restore_default_config;
+		}
+
+		if ( cfgetispeed(&l_uart_config) != convertIntToSpeedType(uart_device.baudrate) ) {
+			printf("error get speed!\n");
+		}
+		// flush before reading byte
+		if (tcflush(uart_device.devicename, TCIOFLUSH) != 0) {
+			goto restore_default_config;
+		}
+
+		// create a thread that writes bytes to tx pin
+		pthread_t write_thread;
+		// init a thread barrier with 2 counts
+		pthread_barrier_init(&barrier_work_main,NULL,2);
+
+		// the rx data with the same size as tx data
+		unsigned char Rx_Data[COUNT];
+
+		// the variable that stores the number of bytes read
+		int read_count_in_byte = 0;
+
+		// create a thread to write bytes
+		pthread_create(&write_thread,NULL,&write_bytes,(void*)&uart_device);
+
+		// synchronize main thread and worker thread
+		// first barrier count here
+		pthread_barrier_wait(&barrier_work_main);
+
+		int count = 0 ;
+		double time_elapsed[COUNT];
+		double time_elapsed_per_bit[COUNT];
+		double time_expected =(double) (8*COUNT) / uart_device.baudrate ;
+		int divisor = (100000000) / (16 * uart_device.baudrate);
+		int real_baudrate = ( 100000000 ) / (16 * divisor);
+		printf("The divisor is %d\n", divisor);
+		printf("The real baud rate is %d\n", real_baudrate);
+		double time_difference;
+		printf("-----------Reading-----------\n");
+
+		do {
+			count = read(uart_device.devicename, &Rx_Data[read_count_in_byte], 1);
+			if (count == 0){
+				// printf("Count = 0\n");
+				continue;
+			}
+			else if (count < 0) {
+				//goto close
+				printf("reading failed!\n");
+				fprintf(stderr, "Value of errno: %d\n", errno);
+				fprintf(stderr, "Error opening file: %s\n", strerror(errno));
+				err = FAILURE;
+				break;
+			}
+			else {
+				if ( read_count_in_byte == 0 ){
+					gettimeofday(&tval_before, NULL);
+				}
+				gettimeofday(&tval_after[read_count_in_byte], NULL);
+				read_count_in_byte += count;
+			}
+
+		} while (read_count_in_byte != COUNT );
+
+		printf("Reading SUCCESS!\n");
+		printf("-----------Result------------\n");
+
+		for (int i =0 ; i < COUNT; i++ )
+		{
+			timersub(&tval_after[i], &tval_before, &tval_result[i]);
+			time_elapsed[i] = (double)tval_result[i].tv_sec + ((double)tval_result[i].tv_usec/1000000.0f);
+
+			if (i > 0) {
+				time_elapsed_per_bit[i] = time_elapsed[i] - time_elapsed[i-1];
+			} else {
+				time_elapsed_per_bit[i] = time_elapsed[i];
+			}
+			//printf("The reading takes %f ms\n", time_elapsed_per_bit[i]*1000);
+		}
+
+		time_difference = time_elapsed[COUNT-1] - time_expected ;
+		// printf("The difference of the time is %f ms\n", time_difference*1000);
+		printf("The expected time is %f ms\n",time_expected*1000);
+		printf("The reading time is %f ms\n",time_elapsed[COUNT-1]*1000);
+		for (int i = 0; i < read_count_in_byte && read_count_in_byte <= COUNT; i++) {
+			if (TX_DATA[i] != Rx_Data[i]) {
+				//printf("Tx = %c, Rx = %c (Mismatch)\n", Tx_Data[i], Rx_Data[i]);
+				err = FAILURE;
+				break;
+			} else {
+				// printf("Tx = %c, Rx = %c\n", Tx_Data[i], Rx_Data[i]);
+				err = SUCCESS;
+			}
+		}
+
+		if ( err == SUCCESS) {
+			printf("Data match SUCCESS!\n");
 		}
 		else {
-			if ( read_count_in_byte == 0 ){
-				gettimeofday(&tval_before, NULL);
-			}
-			gettimeofday(&tval_after[read_count_in_byte], NULL);
-			read_count_in_byte += count;
+			printf("Data match FAIL!\n");
 		}
+		printf("-------End of result---------\n");
+		pthread_join(write_thread, NULL);
+		pthread_barrier_destroy(&barrier_work_main);
 
-	} while (read_count_in_byte != COUNT );
-
-	printf("Reading SUCCESS!\n");
-	printf("-----------Result------------\n");
-
-	for (int i =0 ; i < COUNT; i++ )
-	{
-		timersub(&tval_after[i], &tval_before, &tval_result[i]);
-		time_elapsed[i] = (double)tval_result[i].tv_sec + ((double)tval_result[i].tv_usec/1000000.0f);
-
-		if (i > 0) {
-			time_elapsed_per_bit[i] = time_elapsed[i] - time_elapsed[i-1];
-		} else {
-			time_elapsed_per_bit[i] = time_elapsed[i];
-		}
-		//printf("The reading takes %f ms\n", time_elapsed_per_bit[i]*1000);
-	}
-
-	time_difference = time_elapsed[COUNT-1] - time_expected ;
-	// printf("The difference of the time is %f ms\n", time_difference*1000);
-	printf("The expected time is %f ms\n",time_expected*1000);
-	printf("The reading time is %f ms\n",time_elapsed[COUNT-1]*1000);
-	for (int i = 0; i < read_count_in_byte && read_count_in_byte <= COUNT; i++) {
-		if (Tx_Data[i] != Rx_Data[i]) {
-			//printf("Tx = %c, Rx = %c (Mismatch)\n", Tx_Data[i], Rx_Data[i]);
+		// flush after read byte
+		if (tcflush(uart_device.devicename, TCIFLUSH) != 0) {
 			err = FAILURE;
-			break;
-		} else {
-			// printf("Tx = %c, Rx = %c\n", Tx_Data[i], Rx_Data[i]);
-			err = SUCCESS;
 		}
-	}
-
-	if ( err == 0) {
-		printf("Data match SUCCESS!\n");
-	}
-	else {
-		printf("Data match FAIL!\n");
-	}
-	printf("-------End of result---------\n");
-	pthread_join(write_thread, NULL);
-	pthread_barrier_destroy(&barrier_work_main);
-
-	// flush after read byte
-	if (tcflush(uart_device.devicename, TCIFLUSH) != 0) {
-		err = FAILURE;
 	}
 
 
