@@ -143,13 +143,12 @@ int main(int argc, char const *argv[])
 	for (int i = 0; i < ARRAY_SIZE; i++ ) {
 		if (baudrate_ls[i] == min_baudrate ) {
 			min_index = i;
-			printf("min index is %d\n", min_index);
 		}
 		else if ( baudrate_ls[i] == max_baudrate ) {
 			max_index = i;
-			printf("max index is %d\n", max_index);
 		}
 	}
+
 	if ( max_index <= min_index || max_index <= 0 || min_index <= 0 ) {
 		printf("Error in baud rate finding!\n");
 		err = FAILURE;
@@ -168,7 +167,7 @@ int main(int argc, char const *argv[])
 
 	printf("Executing UART LOOPBACK TEST for device %s\n", sDevice);
 	struct termios l_uart_config, l_ori_uart_config;
-	for (int index = min_index; index < max_index; index ++ ) {
+	for (int index = min_index; index <= max_index; index ++ ) {
 
 		uart_device.baudrate = baudrate_ls[index];
 
@@ -179,8 +178,8 @@ int main(int argc, char const *argv[])
 		}
 
 		// setting the UART baud rate from arguments
-		printf("Changing the Baud rate.............\n");
-		printf("The baud rate is successfully set at : %u\n",uart_device.baudrate);
+		printf("=====Changing the Baud rate=====\n");
+		printf("BAUD RATE: %u\n",uart_device.baudrate);
 
 		int ispeed = cfsetispeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate));
 		int ospeed = cfsetospeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate));
@@ -237,22 +236,16 @@ int main(int argc, char const *argv[])
 		int count = 0 ;
 		double time_elapsed[COUNT];
 		double time_elapsed_per_bit[COUNT];
-		double time_expected =(double) (8*COUNT) / uart_device.baudrate ;
-		int divisor = (100000000) / (16 * uart_device.baudrate);
-		int real_baudrate = ( 100000000 ) / (16 * divisor);
-		// printf("The divisor is %d\n", divisor);
-		// printf("The real baud rate is %d\n", real_baudrate);
+		double time_expected =(double) (8*COUNT) / uart_device.baudrate;
 		double time_difference;
-		printf("-----------Reading-----------\n");
+		printf("========Reading========\n");
 
 		do {
 			count = read(uart_device.devicename, &Rx_Data[read_count_in_byte], 1);
 			if (count == 0){
-				// printf("Count = 0\n");
 				continue;
 			}
 			else if (count < 0) {
-				//goto close
 				printf("reading failed!\n");
 				fprintf(stderr, "Value of errno: %d\n", errno);
 				fprintf(stderr, "Error opening file: %s\n", strerror(errno));
@@ -269,8 +262,7 @@ int main(int argc, char const *argv[])
 
 		} while (read_count_in_byte != COUNT );
 
-		printf("Reading SUCCESS!\n");
-		printf("-----------Result------------\n");
+		printf("========Result========\n");
 
 		for (int i =0 ; i < COUNT; i++ )
 		{
@@ -282,16 +274,13 @@ int main(int argc, char const *argv[])
 			} else {
 				time_elapsed_per_bit[i] = time_elapsed[i];
 			}
-			//printf("The reading takes %f ms\n", time_elapsed_per_bit[i]*1000);
 		}
 
-		time_difference = time_elapsed[COUNT-1] - time_expected ;
-		// printf("The difference of the time is %f ms\n", time_difference*1000);
 		printf("The expected time is %f ms\n",time_expected*1000);
 		printf("The reading time is %f ms\n",time_elapsed[COUNT-1]*1000);
 		for (int i = 0; i < read_count_in_byte && read_count_in_byte <= COUNT; i++) {
 			if (TX_DATA[i] != Rx_Data[i]) {
-				//printf("Tx = %c, Rx = %c (Mismatch)\n", Tx_Data[i], Rx_Data[i]);
+				printf("Tx = %c, Rx = %c (Mismatch)\n", TX_DATA[i], Rx_Data[i]);
 				err = FAILURE;
 				break;
 			} else {
@@ -306,7 +295,7 @@ int main(int argc, char const *argv[])
 		else {
 			printf("Data match FAIL!\n");
 		}
-		printf("-------End of result---------\n");
+		printf("=====End of result=====\n");
 		pthread_join(write_thread, NULL);
 		pthread_barrier_destroy(&barrier_work_main);
 
