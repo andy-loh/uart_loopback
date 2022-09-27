@@ -143,9 +143,11 @@ int main(int argc, char const *argv[])
 	for (int i = 0; i < ARRAY_SIZE; i++ ) {
 		if (baudrate_ls[i] == min_baudrate ) {
 			min_index = i;
+			printf("min index is %d\n", min_index);
 		}
 		else if ( baudrate_ls[i] == min_baudrate ) {
 			max_index = i;
+			printf("max index is %d\n", max_index);
 		}
 	}
 	// open the uart device for reading and writing || not control tty because
