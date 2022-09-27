@@ -140,7 +140,7 @@ int main(int argc, char const *argv[])
 	int min_index = -1;
 	int max_index = -1;
 
-	for (int i = 0; index < ARRAY_SIZE; i++ ) {
+	for (int i = 0; i < ARRAY_SIZE; i++ ) {
 		if (baudrate_ls[i] == min_baudrate ) {
 			min_index = i;
 		}
