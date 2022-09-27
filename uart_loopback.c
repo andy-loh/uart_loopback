@@ -178,7 +178,7 @@ int main(int argc, char const *argv[])
 		}
 
 		// setting the UART baud rate from arguments
-		printf("=====Changing the Baud rate=====\n");
+		printf("******Changing baud rate******\n");
 		printf("BAUD RATE: %u\n",uart_device.baudrate);
 
 		int ispeed = cfsetispeed(&l_uart_config, convertIntToSpeedType(uart_device.baudrate));
@@ -238,7 +238,7 @@ int main(int argc, char const *argv[])
 		double time_elapsed_per_bit[COUNT];
 		double time_expected =(double) (8*COUNT) / uart_device.baudrate;
 		double time_difference;
-		printf("========Reading========\n");
+		printf("Reading bytes\n");
 
 		do {
 			count = read(uart_device.devicename, &Rx_Data[read_count_in_byte], 1);
@@ -253,6 +253,7 @@ int main(int argc, char const *argv[])
 				break;
 			}
 			else {
+				printf(".");
 				if ( read_count_in_byte == 0 ){
 					gettimeofday(&tval_before, NULL);
 				}
@@ -262,7 +263,8 @@ int main(int argc, char const *argv[])
 
 		} while (read_count_in_byte != COUNT );
 
-		printf("========Result========\n");
+		printf("\n");
+		printf("========Result=========\n");
 
 		for (int i =0 ; i < COUNT; i++ )
 		{
