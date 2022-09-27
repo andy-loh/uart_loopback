@@ -48,11 +48,12 @@
 #define COUNT 100
 #define SUCCESS 0
 #define FAILURE -1
+#define ARRAY_SIZE 25
 
 extern int errno ;
 
 pthread_barrier_t barrier_work_main;
-int baudrate_ls[25] = {50,75,110,134,150,200,300,600,1200,2400,4800,9600,19200,38400,
+int baudrate_ls[ARRAY_SIZE] = {50,75,110,134,150,200,300,600,1200,2400,4800,9600,19200,38400,
 		       57600,115200,230400,460800,921600,1000000,1152000,2000000,
 		       2500000,3000000,4000000};
 const unsigned char TX_DATA[COUNT] = "Hello World from StarFive Technology International";
@@ -139,7 +140,7 @@ int main(int argc, char const *argv[])
 	int min_index = -1;
 	int max_index = -1;
 
-	for (int i = 0; index < sizeof(baudrate_ls); i++ ) {
+	for (int i = 0; index < ARRAY_SIZE; i++ ) {
 		if (baudrate_ls[i] == min_baudrate ) {
 			min_index = i;
 		}
