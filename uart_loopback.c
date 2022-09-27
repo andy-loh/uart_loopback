@@ -149,6 +149,12 @@ int main(int argc, char const *argv[])
 			max_index = i;
 			printf("max index is %d\n", max_index);
 		}
+
+		if ( max_index <= min_index || max_index <= 0 || min_index <= 0 ) {
+			printf("Error in baud rate finding!\n");
+			err = FAILURE;
+			goto end;
+		}
 	}
 	// open the uart device for reading and writing || not control tty because
 	// we don't want to get killed if linenoise sends CTRL-C || open the device
@@ -235,8 +241,8 @@ int main(int argc, char const *argv[])
 		double time_expected =(double) (8*COUNT) / uart_device.baudrate ;
 		int divisor = (100000000) / (16 * uart_device.baudrate);
 		int real_baudrate = ( 100000000 ) / (16 * divisor);
-		printf("The divisor is %d\n", divisor);
-		printf("The real baud rate is %d\n", real_baudrate);
+		// printf("The divisor is %d\n", divisor);
+		// printf("The real baud rate is %d\n", real_baudrate);
 		double time_difference;
 		printf("-----------Reading-----------\n");
 
