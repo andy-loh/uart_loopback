@@ -159,11 +159,10 @@ int main(int argc, char const *argv[])
 	}
 
 	printf("Executing UART LOOPBACK TEST for device %s\n", sDevice);
-
+	struct termios l_uart_config, l_ori_uart_config;
 	for (int index = min_index; index < max_index; index ++ ) {
 
 		uart_device.baudrate = baudrate_ls[index];
-		struct termios l_uart_config, l_ori_uart_config;
 
 		if ( ( tcgetattr(uart_device.devicename, &l_uart_config)) != 0
 		|| ( tcgetattr(uart_device.devicename, &l_ori_uart_config ) ) != 0 ) {
